@@ -6,12 +6,12 @@ import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 
+
 @RequiredArgsConstructor
-public class TaskUseCase implements ITaskUseCase {
+public class TaskUseCase {
 
-    private TaskRepository taskRepository;
+    private final TaskRepository taskRepository;
 
-    @Override
     public List<Task> findAll() {
         return taskRepository.findAll();
     }
