@@ -16,7 +16,6 @@ public class ExceptionsConfig {
 
     @ExceptionHandler(AlreadyExistsException.class)
     public ResponseEntity<CustomError> handleAlreadyExistsException(AlreadyExistsException exception) {
-        System.out.println(exception.getMessage());
         return new ResponseEntity<>(
                 new CustomError(HttpStatus.BAD_REQUEST.value(), exception.getMessage(), new Date()),
                 HttpStatus.BAD_REQUEST
