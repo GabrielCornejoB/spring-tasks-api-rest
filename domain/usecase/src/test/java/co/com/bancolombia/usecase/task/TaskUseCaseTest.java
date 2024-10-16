@@ -1,5 +1,6 @@
 package co.com.bancolombia.usecase.task;
 
+import co.com.bancolombia.model.exceptions.AlreadyExistsException;
 import co.com.bancolombia.model.task.Task;
 import co.com.bancolombia.model.task.gateways.TaskRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,9 +12,8 @@ import org.mockito.Mockito;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 public class TaskUseCaseTest {
 
@@ -33,8 +33,8 @@ public class TaskUseCaseTest {
     void getAllTasks() {
         // GIVEN
         List<Task> tasksMock = List.of(
-                new Task(11, "Titulo 1", "Una desc"),
-                new Task(23, "Titulito", "Otra desc")
+                new Task(1, "Titulo 1", "Una desc"),
+                new Task(2, "Titulito", "Otra desc")
         );
         when(this.taskRepository.findAll()).thenReturn(tasksMock);
 
@@ -44,6 +44,47 @@ public class TaskUseCaseTest {
         // THEN
         assertNotNull(result);
         assertEquals(tasksMock, result);
+    }
+
+    @Test
+    @DisplayName("GIVEN there are not tasks with the same title as the new task WHEN the create() fn is called THEN it should create the task")
+    void createTaskSuccess() {
+        // GIVEN
+        List<Task> tasksMock = List.of(
+                new Task(1, "Titulo 1", "Una desc"),
+                new Task(2, "Titulo 2", "Otra desc")
+        );
+        Task mockTask = new Task(null, "Nuevo título", "Una nueva descripción");
+        when(this.taskRepository.findAll()).thenReturn(tasksMock);
+        when(this.taskRepository.create(mockTask)).thenReturn(new Task(3, mockTask.title(), mockTask.description()));
+
+        // WHEN
+        Task result = this.useCase.create(mockTask);
+
+        // THEN
+        verify(this.taskRepository, times(1)).findAll();
+        verify(this.taskRepository, times(1)).create(mockTask);
+        assertEquals(result.title(), mockTask.title());
+        assertEquals(result.description(), mockTask.description());
+        assertNotNull(result.id());
+    }
+
+    @Test
+    @DisplayName("GIVEN there is a task with the same title as the new task WHEN the create() fn is called THEN it should throw an error")
+    void createTaskAlreadyExistsException() {
+        // GIVEN
+        List<Task> tasksMock = List.of(
+                new Task(1, "Titulo 1", "Una desc"),
+                new Task(2, "Titulo 2", "Otra desc")
+        );
+        Task mockTask = new Task(null, "Titulo 1", "Una nueva descripción");
+        when(this.taskRepository.findAll()).thenReturn(tasksMock);
+
+        // WHEN
+        assertThrows(AlreadyExistsException.class, () -> this.useCase.create(mockTask));
+
+        // THEN
+        verify(this.taskRepository, never()).create(mockTask);
     }
 
 }
