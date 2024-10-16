@@ -1,7 +1,9 @@
 package co.com.bancolombia.api;
 
+import co.com.bancolombia.api.dtos.CreateTaskRequestBody;
 import co.com.bancolombia.model.task.Task;
 import co.com.bancolombia.usecase.task.TaskUseCase;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -55,7 +57,7 @@ class TaskControllerTest {
         // WHEN
         ResultActions resultActions = this.mockMvc.perform(requestBuilder);
 
-        // THEN (MISSING ASSERTIONS)
+        // THEN
         resultActions.andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$[0].id").value(11))
@@ -64,5 +66,28 @@ class TaskControllerTest {
                 .andExpect(jsonPath("$[1].id").value(23))
                 .andExpect(jsonPath("$[1].title").value("Titulito"))
                 .andExpect(jsonPath("$[1].description").value("otra desc"));
+    }
+
+    @Test
+    @DisplayName("GIVEN the request body is valid WHEN the POST:/tasks endpoint is called THEN it should return the created Task with status 200")
+    public void create() throws Exception {
+        // GIVEN
+        CreateTaskRequestBody requestBody = new CreateTaskRequestBody("Titlee", "Descriptioooooon");
+        Task mockTask = new Task(5, requestBody.title(), requestBody.description());
+        Task arg = new Task(null, requestBody.title(), requestBody.description());
+
+        when(this.useCase.create(arg)).thenReturn(mockTask);
+        RequestBuilder requestBuilder = MockMvcRequestBuilders.post(this.baseUrl)
+                .content(new ObjectMapper().writeValueAsString(requestBody))
+                .contentType(MediaType.APPLICATION_JSON);
+
+        // WHEN
+        ResultActions resultActions = this.mockMvc.perform(requestBuilder);
+
+        // THEN
+        resultActions.andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(5))
+                .andExpect(jsonPath("$.title").value(mockTask.title()))
+                .andExpect(jsonPath("$.description").value(mockTask.description()));
     }
 }
