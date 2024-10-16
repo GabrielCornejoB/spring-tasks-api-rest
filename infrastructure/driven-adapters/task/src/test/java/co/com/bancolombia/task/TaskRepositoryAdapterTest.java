@@ -8,8 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TaskRepositoryAdapterTest {
 
@@ -29,5 +28,20 @@ public class TaskRepositoryAdapterTest {
         // THEN
         assertNotNull(result);
         assertFalse(result.isEmpty());
+    }
+
+    @Test
+    @DisplayName("WHEN the create() fn is called THEN it should add the task to the array & increase the counter")
+    public void create() {
+        // GIVEN
+        Task mockArg = new Task(null, "New title", "New description");
+
+        // WHEN
+        Task result = this.repository.create(mockArg);
+
+        // THEN
+        assertNotNull(result.id());
+        assertEquals(result.title(), mockArg.title());
+        assertEquals(result.description(), mockArg.description());
     }
 }
