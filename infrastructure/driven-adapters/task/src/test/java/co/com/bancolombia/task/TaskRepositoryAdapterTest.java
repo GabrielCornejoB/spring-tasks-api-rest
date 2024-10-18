@@ -90,4 +90,35 @@ public class TaskRepositoryAdapterTest {
         boolean taskExists = tasks.stream().anyMatch(task -> task.id().equals(existingId));
         assertFalse(taskExists);
     }
+
+    @Test
+    @DisplayName("GIVEN the description is sent WHEN the update fn is called THEN it should update both the title and the description")
+    public void update() {
+        // GIVEN
+        Integer existingId = 1;
+        Task mockTask = new Task(existingId, "My new title", "My newer description");
+
+        // WHEN
+        Task result = this.repository.update(mockTask);
+
+        // THEN
+        assertEquals(mockTask, result);
+        assertTrue(this.repository.findAll().contains(mockTask));
+    }
+
+    @Test
+    @DisplayName("GIVEN the description is not sent WHEN the update fn is called THEN it should update only the title")
+    public void updateNoDescription() {
+        // GIVEN
+        Integer existingId = 1;
+        Task expected = new Task(existingId, "My new title", this.repository.findAll().getFirst().description());
+        Task mockTask = new Task(existingId, "My new title", null);
+
+        // WHEN
+        Task result = this.repository.update(mockTask);
+
+        // THEN
+        assertEquals(expected, result);
+        assertTrue(this.repository.findAll().contains(expected));
+    }
 }

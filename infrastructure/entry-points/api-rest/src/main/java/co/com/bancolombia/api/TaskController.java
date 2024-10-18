@@ -1,6 +1,7 @@
 package co.com.bancolombia.api;
 
 import co.com.bancolombia.api.dtos.CreateTaskRequestBody;
+import co.com.bancolombia.api.dtos.UpdateTaskRequestBody;
 import co.com.bancolombia.model.task.Task;
 import co.com.bancolombia.usecase.task.TaskUseCase;
 import jakarta.validation.Valid;
@@ -33,6 +34,20 @@ public class TaskController {
     ) {
         return ResponseEntity.ok().body(this.taskUseCase.create(
                 new Task(null, requestBody.title(), requestBody.description())
+        ));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Task> update(
+            @PathVariable(name = "id") int id,
+            @Valid @RequestBody UpdateTaskRequestBody requestBody
+    ) {
+        return ResponseEntity.ok().body(this.taskUseCase.update(
+                new Task(
+                        id,
+                        requestBody.title(),
+                        requestBody.description().isPresent() ? requestBody.description().get() : null
+                )
         ));
     }
 

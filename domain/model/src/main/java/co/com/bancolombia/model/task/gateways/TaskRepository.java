@@ -12,5 +12,7 @@ public interface TaskRepository {
 
     Task create(Task task);
 
+    Task update(Task task);
+
     void delete(Integer taskId);
 }

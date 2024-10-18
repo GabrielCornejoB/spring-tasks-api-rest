@@ -120,12 +120,9 @@ public class TaskUseCaseTest {
     @DisplayName("GIVEN there is a task with the ID to delete WHEN the delete() fn is called THEN it should delete the task")
     void deleteSuccess() {
         // GIVEN
-        List<Task> tasksMock = List.of(
-                new Task(1, "Titulo 1", "Una desc"),
-                new Task(2, "Titulo 2", "Otra desc")
-        );
-        when(this.taskRepository.findAll()).thenReturn(tasksMock);
+        
         int existingId = 1;
+        when(this.taskRepository.find(existingId)).thenReturn(Optional.of(new Task(1, "Titulo 1", "Una desc")));
 
         // WHEN
         this.useCase.delete(existingId);
@@ -150,5 +147,65 @@ public class TaskUseCaseTest {
 
         // THEN
         verify(this.taskRepository, never()).delete(existingId);
+    }
+
+    @Test
+    @DisplayName("GIVEN there is a al ready created task with the sent id WHEN the update() fn is called THEN it should update the task")
+    void updateTaskSuccess() {
+        // GIVEN
+        List<Task> tasksMock = List.of(
+                new Task(1, "Titulo 1", "Una desc"),
+                new Task(2, "Titulo 2", "Otra desc")
+        );
+        Task mockTask = new Task(2, "Nuevo título", "Una nueva descripción");
+        when(this.taskRepository.find(2)).thenReturn(Optional.of(new Task(2, "Titulo 2", "Otra desc")));
+        when(this.taskRepository.update(mockTask)).thenReturn(new Task(2, mockTask.title(), mockTask.description()));
+
+        // WHEN
+        Task result = this.useCase.update(mockTask);
+
+        // THEN
+        verify(this.taskRepository, times(1)).findAll();
+        verify(this.taskRepository, times(1)).update(mockTask);
+        assertEquals(result.title(), mockTask.title());
+        assertEquals(result.description(), mockTask.description());
+        assertNotNull(result.id());
+    }
+
+    @Test
+    @DisplayName("GIVEN there is not a task with the sent id WHEN the update() fn is called THEN it should throw an error")
+    void updateTaskNotFound() {
+        // GIVEN
+        List<Task> tasksMock = List.of(
+                new Task(1, "Titulo 1", "Una desc"),
+                new Task(2, "Titulo 2", "Otra desc")
+        );
+        Task mockTask = new Task(3, "Nuevo título", "Una nueva descripción");
+        when(this.taskRepository.find(3)).thenReturn(Optional.empty());
+
+        // WHEN
+        assertThrows(NotFoundException.class, () -> this.useCase.update(mockTask));
+
+        // THEN
+        verify(this.taskRepository, never()).update(mockTask);
+    }
+
+    @Test
+    @DisplayName("GIVEN there is a task with the same title as the new one WHEN the update() fn is called THEN it should throw an error")
+    void updateTaskAlreadyExists() {
+        // GIVEN
+        List<Task> tasksMock = List.of(
+                new Task(1, "Titulo 1", "Una desc"),
+                new Task(2, "Titulo 2", "Otra desc")
+        );
+        Task mockTask = new Task(1, "Titulo 2", "Una nueva descripción");
+        when(this.taskRepository.find(1)).thenReturn(Optional.of(new Task(1, "Titulo 1", "Una desc")));
+        when(this.taskRepository.findAll()).thenReturn(tasksMock);
+
+        // WHEN
+        assertThrows(AlreadyExistsException.class, () -> this.useCase.update(mockTask));
+
+        // THEN
+        verify(this.taskRepository, never()).update(mockTask);
     }
 }

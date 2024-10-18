@@ -25,12 +25,26 @@ public class TaskUseCase {
     }
 
     public Task create(Task task) {
-        if (this.taskRepository.findAll().stream().map(Task::title).toList().contains(task.title())) {
+        if (this.taskTitleAlreadyExists(task.title())) {
             throw new AlreadyExistsException(
                     "Error al crear la tarea. Ya existe una tarea con el título '" + task.title() + "'."
             );
         }
         return this.taskRepository.create(task);
+    }
+
+    public Task update(Task task) {
+        if (this.taskRepository.find(task.id()).isEmpty()) {
+            throw new NotFoundException(
+                    "Error al actualizar la tarea. No existe una tarea con el ID '" + task.id() + "'."
+            );
+        }
+        if (this.taskTitleAlreadyExists(task.title())) {
+            throw new AlreadyExistsException(
+                    "Error al actualizar la tarea. Ya existe una tarea con el título '" + task.title() + "'."
+            );
+        }
+        return this.taskRepository.update(task);
     }
 
     public void delete(Integer taskId) {
@@ -40,5 +54,9 @@ public class TaskUseCase {
             );
         }
         this.taskRepository.delete(taskId);
+    }
+
+    private boolean taskTitleAlreadyExists(String title) {
+        return this.taskRepository.findAll().stream().map(Task::title).toList().contains(title);
     }
 }

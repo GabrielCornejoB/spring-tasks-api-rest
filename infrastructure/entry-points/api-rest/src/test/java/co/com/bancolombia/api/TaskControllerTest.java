@@ -1,6 +1,7 @@
 package co.com.bancolombia.api;
 
 import co.com.bancolombia.api.dtos.CreateTaskRequestBody;
+import co.com.bancolombia.api.dtos.UpdateTaskRequestBody;
 import co.com.bancolombia.model.task.Task;
 import co.com.bancolombia.usecase.task.TaskUseCase;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -21,6 +22,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -40,8 +42,12 @@ class TaskControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
+
     @MockBean
     private TaskUseCase useCase;
+
+    @Autowired
+    private ObjectMapper jacksonObjectMapper;
 
     @Test
     @DisplayName("GIVEN there are tasks created WHEN the GET:/tasks endpoint is called THEN it should return the tasks with status 200")
@@ -123,5 +129,52 @@ class TaskControllerTest {
 
         // THEN
         resultActions.andExpect(status().isNoContent());
+    }
+
+    @Test
+    @DisplayName("GIVEN the request body is valid WHEN the PUT:/tasks endpoint is called THEN it should return the updated Task with status 200")
+    public void update() throws Exception {
+        // GIVEN
+        UpdateTaskRequestBody requestBody = new UpdateTaskRequestBody("New TITLE", Optional.of("NEW DESCRIPTION"));
+        int id = 9;
+        Task mockTask = new Task(id, requestBody.title(), "NEW DESCRIPTION");
+
+        when(this.useCase.update(mockTask)).thenReturn(mockTask);
+        RequestBuilder requestBuilder = MockMvcRequestBuilders.put(this.baseUrl + "/" + id)
+                .content(jacksonObjectMapper.writeValueAsString(requestBody))
+                .contentType(MediaType.APPLICATION_JSON);
+
+        // WHEN
+        ResultActions resultActions = this.mockMvc.perform(requestBuilder);
+
+        // THEN
+        resultActions.andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(id))
+                .andExpect(jsonPath("$.title").value(mockTask.title()))
+                .andExpect(jsonPath("$.description").value(mockTask.description()));
+    }
+
+    @Test
+    @DisplayName("GIVEN the request body has not description WHEN the PUT:/tasks endpoint is called THEN it should return the updated Task with status 200")
+    public void updateNoDesc() throws Exception {
+        // GIVEN
+        UpdateTaskRequestBody requestBody = new UpdateTaskRequestBody("New TITLE", Optional.empty());
+        int id = 9;
+        Task arg = new Task(id, requestBody.title(), null);
+        Task mockTask = new Task(id, requestBody.title(), "Existing desc");
+
+        when(this.useCase.update(arg)).thenReturn(mockTask);
+        RequestBuilder requestBuilder = MockMvcRequestBuilders.put(this.baseUrl + "/" + id)
+                .content(jacksonObjectMapper.writeValueAsString(requestBody))
+                .contentType(MediaType.APPLICATION_JSON);
+
+        // WHEN
+        ResultActions resultActions = this.mockMvc.perform(requestBuilder);
+
+        // THEN
+        resultActions.andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(id))
+                .andExpect(jsonPath("$.title").value(mockTask.title()))
+                .andExpect(jsonPath("$.description").value(mockTask.description()));
     }
 }

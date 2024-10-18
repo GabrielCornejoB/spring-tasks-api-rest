@@ -7,7 +7,9 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Component
 public class TaskRepositoryAdapter implements TaskRepository {
@@ -32,6 +34,20 @@ public class TaskRepositoryAdapter implements TaskRepository {
         Task newTask = new Task(this.counter, task.title(), task.description());
         this.tasks.addLast(newTask);
         return newTask;
+    }
+
+    @Override
+    public Task update(Task updatedTask) {
+        this.tasks = this.tasks.stream()
+                .map(
+                        task -> {
+                            if (updatedTask.description() == null) updatedTask.setDescription(task.description());
+                            return Objects.equals(task.id(), updatedTask.id()) ? updatedTask : task;
+                        }
+                )
+                .collect(Collectors.toList());
+
+        return updatedTask;
     }
 
     @Override
