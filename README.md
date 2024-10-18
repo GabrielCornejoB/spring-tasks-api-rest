@@ -1,47 +1,67 @@
-# Proyecto Base Implementando Clean Architecture
+# API de gestión de tareas con Spring + Bancolombia Clean Architecture
 
-## Antes de Iniciar
+## Como ejecutar
 
-Empezaremos por explicar los diferentes componentes del proyectos y partiremos de los componentes externos, continuando con los componentes core de negocio (dominio) y por último el inicio y configuración de la aplicación.
+Para ejecutar el proyecto se debe de primero cargar el proyecto de gradle y luego ejecutar la clase `MainApplication`
+con
+su función `main()`. Una vez nuestro servidor en local esté ejecutando podemos realizar las distintas peticiones:
 
-Lee el artículo [Clean Architecture — Aislando los detalles](https://medium.com/bancolombia-tech/clean-architecture-aislando-los-detalles-4f9530f35d7a)
+### Obtener todas las tareas
 
-# Arquitectura
+Para obtener todas las tareas se debe llamar el endpoint `http://localhost:8080/api/tasks` con una petición tipo `GET`.
+Por defecto cada vez que se ejecuta el programa viene con 3 tareas pre-cargadas. Esta petición no requiere ningún cuerpo
+ni parámetro en la petición.
 
-![Clean Architecture](https://miro.medium.com/max/1400/1*ZdlHz8B0-qu9Y-QO3AXR_w.png)
+### Obtener una tarea
 
-## Domain
+Para obtener una tarea se debe llamar al endpoint `http://localhost:8080/api/tasks/{id}` con una petición tipo `GET`
+donde en vez del `{id}` debe ir el ID de la tarea que se quiere consultar. Ej: `http://localhost:8080/api/tasks/2`.
 
-Es el módulo más interno de la arquitectura, pertenece a la capa del dominio y encapsula la lógica y reglas del negocio mediante modelos y entidades del dominio.
+### Crear una tarea
 
-## Usecases
+Para crear una se debe llamar al endpoint `http://localhost:8080/api/tasks` con una petición tipo `POST`. Esta petición
+requiere de un cuerpo de tipo texto en formato JSON con las propiedades: `title` y `description`. Estas tienen las
+siguientes validaciones:
 
-Este módulo gradle perteneciente a la capa del dominio, implementa los casos de uso del sistema, define lógica de aplicación y reacciona a las invocaciones desde el módulo de entry points, orquestando los flujos hacia el módulo de entities.
+- El título no puede ser vacío y debe tener entre 3 y 20 carácteres
+- La descripción no puede ser vacía y debe tener entre 10 y 100 carácteres
 
-## Infrastructure
+Un ejemplo del cuerpo sería tal que así:
 
-### Helpers
+```json
+{
+  "title": "a desc1",
+  "description": "A description"
+}
+```
 
-En el apartado de helpers tendremos utilidades generales para los Driven Adapters y Entry Points.
+### Eliminar una tarea
 
-Estas utilidades no están arraigadas a objetos concretos, se realiza el uso de generics para modelar comportamientos
-genéricos de los diferentes objetos de persistencia que puedan existir, este tipo de implementaciones se realizan
-basadas en el patrón de diseño [Unit of Work y Repository](https://medium.com/@krzychukosobudzki/repository-design-pattern-bc490b256006)
+Para obtener una tarea se debe llamar al endpoint `http://localhost:8080/api/tasks/{id}` con una petición tipo `DELETE`
+donde en vez del `{id}` debe ir el ID de la tarea que se quiere eliminar. Ej: `http://localhost:8080/api/tasks/2`.
 
-Estas clases no puede existir solas y debe heredarse su compartimiento en los **Driven Adapters**
+### Actualizar una tarea
 
-### Driven Adapters
+Para crear una se debe llamar al endpoint `http://localhost:8080/api/tasks/{id}` con una petición tipo `PUT` donde en
+vez
+del `{id}` debe ir el ID de la tarea que se quiere eliminar. Esta petición requiere permite dos posibles cuerpos:
+Uno incluyendo la descripción y otro sin incluírla. Además, los campos cuentan con las mismas validaciones que el
+endpoint de crear.
+A excepción de que la descripción puede no ser enviada.
 
-Los driven adapter representan implementaciones externas a nuestro sistema, como lo son conexiones a servicios rest,
-soap, bases de datos, lectura de archivos planos, y en concreto cualquier origen y fuente de datos con la que debamos
-interactuar.
+Un ejemplo del cuerpo con descripción sería tal que así:
 
-### Entry Points
+```json
+{
+  "title": "new title",
+  "description": "new description"
+}
+```
 
-Los entry points representan los puntos de entrada de la aplicación o el inicio de los flujos de negocio.
+Un ejemplo del cuerpo sin descripción sería tal que así:
 
-## Application
-
-Este módulo es el más externo de la arquitectura, es el encargado de ensamblar los distintos módulos, resolver las dependencias y crear los beans de los casos de use (UseCases) de forma automática, inyectando en éstos instancias concretas de las dependencias declaradas. Además inicia la aplicación (es el único módulo del proyecto donde encontraremos la función “public static void main(String[] args)”.
-
-**Los beans de los casos de uso se disponibilizan automaticamente gracias a un '@ComponentScan' ubicado en esta capa.**
+```json
+{
+  "title": "a new desc"
+}
+```
