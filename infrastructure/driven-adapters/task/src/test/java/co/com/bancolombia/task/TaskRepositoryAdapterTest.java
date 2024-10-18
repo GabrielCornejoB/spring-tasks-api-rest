@@ -44,4 +44,22 @@ public class TaskRepositoryAdapterTest {
         assertEquals(result.title(), mockArg.title());
         assertEquals(result.description(), mockArg.description());
     }
+
+    @Test
+    @DisplayName("GIVEN there is a task with the same ID as the argument WHEN the delete fn is called THEN it should set the tasks array to an array with the task of the args")
+    public void delete() {
+        // GIVEN
+        Integer existingId = 1;
+        List<Task> initialTasks = this.repository.findAll();
+        int initialSize = initialTasks.size();
+
+        // WHEN
+        this.repository.delete(existingId);
+
+        // THEN
+        List<Task> tasks = this.repository.findAll();
+        assertNotEquals(initialSize, tasks.size());
+        boolean taskExists = tasks.stream().anyMatch(task -> task.id().equals(existingId));
+        assertFalse(taskExists);
+    }
 }

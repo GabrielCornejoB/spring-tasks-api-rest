@@ -13,7 +13,7 @@ public class TaskRepositoryAdapter implements TaskRepository {
 
     List<Task> tasks = new ArrayList<>(Constants.initialTasks);
 
-    private Integer counter = this.tasks.size();
+    private Integer counter = 3;
 
     @Override
     public List<Task> findAll() {
@@ -24,7 +24,13 @@ public class TaskRepositoryAdapter implements TaskRepository {
     public Task create(Task task) {
         this.counter++;
         Task newTask = new Task(this.counter, task.title(), task.description());
-        this.tasks.add(newTask);
+        this.tasks.addLast(newTask);
         return newTask;
+    }
+
+    @Override
+    public void delete(Integer taskId) {
+        int index = this.tasks.stream().map(Task::id).toList().indexOf(taskId);
+        this.tasks.remove(index);
     }
 }

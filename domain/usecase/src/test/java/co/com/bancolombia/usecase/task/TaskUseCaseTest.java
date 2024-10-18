@@ -1,6 +1,7 @@
 package co.com.bancolombia.usecase.task;
 
 import co.com.bancolombia.model.exceptions.AlreadyExistsException;
+import co.com.bancolombia.model.exceptions.NotFoundException;
 import co.com.bancolombia.model.task.Task;
 import co.com.bancolombia.model.task.gateways.TaskRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -87,4 +88,39 @@ public class TaskUseCaseTest {
         verify(this.taskRepository, never()).create(mockTask);
     }
 
+    @Test
+    @DisplayName("GIVEN there is a task with the ID to delete WHEN the delete() fn is called THEN it should delete the task")
+    void deleteSuccess() {
+        // GIVEN
+        List<Task> tasksMock = List.of(
+                new Task(1, "Titulo 1", "Una desc"),
+                new Task(2, "Titulo 2", "Otra desc")
+        );
+        when(this.taskRepository.findAll()).thenReturn(tasksMock);
+        int existingId = 1;
+
+        // WHEN
+        this.useCase.delete(existingId);
+
+        // THEN
+        verify(this.taskRepository, times(1)).delete(existingId);
+    }
+
+    @Test
+    @DisplayName("GIVEN there is not a task with the ID to delete WHEN the delete() fn is called THEN it throw an error")
+    void deleteNotFoundException() {
+        // GIVEN
+        List<Task> tasksMock = List.of(
+                new Task(1, "Titulo 1", "Una desc"),
+                new Task(2, "Titulo 2", "Otra desc")
+        );
+        when(this.taskRepository.findAll()).thenReturn(tasksMock);
+        int existingId = 3;
+
+        // WHEN
+        assertThrows(NotFoundException.class, () -> this.useCase.delete(existingId));
+
+        // THEN
+        verify(this.taskRepository, never()).delete(existingId);
+    }
 }

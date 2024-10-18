@@ -2,6 +2,7 @@ package co.com.bancolombia.config;
 
 import co.com.bancolombia.model.exceptions.AlreadyExistsException;
 import co.com.bancolombia.model.exceptions.CustomError;
+import co.com.bancolombia.model.exceptions.NotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -19,6 +20,14 @@ public class ExceptionsConfig {
         return new ResponseEntity<>(
                 new CustomError(HttpStatus.BAD_REQUEST.value(), exception.getMessage(), new Date()),
                 HttpStatus.BAD_REQUEST
+        );
+    }
+
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<CustomError> handleNotFoundException(NotFoundException exception) {
+        return new ResponseEntity<>(
+                new CustomError(HttpStatus.NOT_FOUND.value(), exception.getMessage(), new Date()),
+                HttpStatus.NOT_FOUND
         );
     }
 

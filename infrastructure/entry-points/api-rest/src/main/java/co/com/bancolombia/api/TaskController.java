@@ -30,4 +30,10 @@ public class TaskController {
                 new Task(null, requestBody.title(), requestBody.description())
         ));
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> delete(@PathVariable(name = "id") int id) {
+        this.taskUseCase.delete(id);
+        return ResponseEntity.noContent().build();
+    }
 }

@@ -90,4 +90,19 @@ class TaskControllerTest {
                 .andExpect(jsonPath("$.title").value(mockTask.title()))
                 .andExpect(jsonPath("$.description").value(mockTask.description()));
     }
+
+    @Test
+    @DisplayName("GIVEN the path variable id is valid WHEN the DELETE:/tasks/{id} endpoint is called THEN it should return 204 no content")
+    public void delete() throws Exception {
+        // GIVEN
+        int pathVar = 1;
+        RequestBuilder requestBuilder = MockMvcRequestBuilders.delete(this.baseUrl + "/" + pathVar)
+                .contentType(MediaType.APPLICATION_JSON);
+
+        // WHEN
+        ResultActions resultActions = this.mockMvc.perform(requestBuilder);
+
+        // THEN
+        resultActions.andExpect(status().isNoContent());
+    }
 }
