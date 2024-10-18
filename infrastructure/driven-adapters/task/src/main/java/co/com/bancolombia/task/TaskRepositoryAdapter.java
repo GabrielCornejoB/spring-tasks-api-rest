@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Component
 public class TaskRepositoryAdapter implements TaskRepository {
@@ -18,6 +19,11 @@ public class TaskRepositoryAdapter implements TaskRepository {
     @Override
     public List<Task> findAll() {
         return this.tasks;
+    }
+
+    @Override
+    public Optional<Task> find(int taskId) {
+        return this.tasks.stream().filter(task -> task.id() == taskId).findFirst();
     }
 
     @Override

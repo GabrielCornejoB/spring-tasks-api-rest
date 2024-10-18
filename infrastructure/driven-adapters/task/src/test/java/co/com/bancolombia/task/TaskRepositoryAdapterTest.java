@@ -7,6 +7,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -28,6 +29,33 @@ public class TaskRepositoryAdapterTest {
         // THEN
         assertNotNull(result);
         assertFalse(result.isEmpty());
+    }
+
+    @Test
+    @DisplayName("GIVEN there is a task with the searched id WHEN the find() fn is called THEN it should return the task")
+    public void find() {
+        // Given
+        int taskId = 1;
+
+        // When
+        Optional<Task> result = this.repository.find(taskId);
+
+        // Then
+        assertTrue(result.isPresent());
+        assertEquals(taskId, result.get().id());
+    }
+
+    @Test
+    @DisplayName("GIVEN there is not a task with the searched id WHEN the find() fn is called THEN it should return empty")
+    public void findNotFound() {
+        // Given
+        int taskId = 9999;
+
+        // When
+        Optional<Task> result = this.repository.find(taskId);
+
+        // Then
+        assertTrue(result.isEmpty());
     }
 
     @Test

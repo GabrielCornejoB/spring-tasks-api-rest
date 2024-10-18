@@ -12,6 +12,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -45,6 +46,33 @@ public class TaskUseCaseTest {
         // THEN
         assertNotNull(result);
         assertEquals(tasksMock, result);
+    }
+
+    @Test
+    @DisplayName("GIVEN there is a task with the searched id WHEN the get() fn is called THEN it should return the task")
+    void getATask() {
+        // GIVEN
+        int id = 2;
+        Task expected = new Task(2, "Desc", "Title");
+        when(this.taskRepository.find(id)).thenReturn(Optional.of(expected));
+
+        // WHEN
+        Task result = this.useCase.find(id);
+
+        // THEN
+        verify(this.taskRepository, times(1)).find(id);
+        assertEquals(expected, result);
+    }
+
+    @Test
+    @DisplayName("GIVEN there is not a task with the searched id WHEN the get() fn is called THEN it should throw an error")
+    void findTaskError() {
+        // GIVEN
+        int id = 3;
+        when(this.taskRepository.find(id)).thenReturn(Optional.empty());
+
+        // WHEN & THEN
+        assertThrows(NotFoundException.class, () -> this.useCase.find(id));
     }
 
     @Test

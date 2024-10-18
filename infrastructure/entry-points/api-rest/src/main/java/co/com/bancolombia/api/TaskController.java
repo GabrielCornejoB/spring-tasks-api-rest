@@ -22,6 +22,11 @@ public class TaskController {
         return ResponseEntity.ok().body(this.taskUseCase.findAll());
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<Task> find(@PathVariable(name = "id") int id) {
+        return ResponseEntity.ok().body(this.taskUseCase.find(id));
+    }
+
     @PostMapping()
     public ResponseEntity<Task> create(
             @Valid @RequestBody CreateTaskRequestBody requestBody

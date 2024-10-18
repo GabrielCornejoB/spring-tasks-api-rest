@@ -69,6 +69,25 @@ class TaskControllerTest {
     }
 
     @Test
+    @DisplayName("GIVEN there is a task created with the sent id WHEN the GET:/tasks/{id} endpoint is called THEN it should return the task with status 200")
+    public void find() throws Exception {
+        // GIVEN
+        int id = 24;
+        Task mockTask = new Task(id, "My task", "My Description");
+        when(this.useCase.find(id)).thenReturn(mockTask);
+        RequestBuilder requestBuilder = MockMvcRequestBuilders.get(this.baseUrl + "/" + id).contentType(MediaType.APPLICATION_JSON);
+
+        // WHEN
+        ResultActions resultActions = this.mockMvc.perform(requestBuilder);
+
+        // THEN
+        resultActions.andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(id))
+                .andExpect(jsonPath("$.title").value("My task"))
+                .andExpect(jsonPath("$.description").value("My Description"));
+    }
+
+    @Test
     @DisplayName("GIVEN the request body is valid WHEN the POST:/tasks endpoint is called THEN it should return the created Task with status 200")
     public void create() throws Exception {
         // GIVEN

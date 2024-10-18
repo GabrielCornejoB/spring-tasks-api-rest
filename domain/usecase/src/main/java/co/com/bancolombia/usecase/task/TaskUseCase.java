@@ -18,6 +18,12 @@ public class TaskUseCase {
         return this.taskRepository.findAll();
     }
 
+    public Task find(int id) {
+        return this.taskRepository.find(id).orElseThrow(
+                () -> new NotFoundException("La tarea con el id '" + id + "' no existe.")
+        );
+    }
+
     public Task create(Task task) {
         if (this.taskRepository.findAll().stream().map(Task::title).toList().contains(task.title())) {
             throw new AlreadyExistsException(
@@ -26,9 +32,9 @@ public class TaskUseCase {
         }
         return this.taskRepository.create(task);
     }
-    
+
     public void delete(Integer taskId) {
-        if (this.taskRepository.findAll().stream().noneMatch(task -> task.id().equals(taskId))) {
+        if (this.taskRepository.find(taskId).isEmpty()) {
             throw new NotFoundException(
                     "Error al eliminar la tarea. No existe una tarea con el ID '" + taskId + "'."
             );
